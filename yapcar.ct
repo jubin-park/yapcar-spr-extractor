@@ -225,6 +225,34 @@
       <ZeroTerminate>1</ZeroTerminate>
       <Address>YAPCAR.exe+36C310</Address>
     </CheatEntry>
+    <CheatEntry>
+      <ID>32</ID>
+      <Description>"가시몬 그리기 시작 login_btexit"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>YAPCAR.exe+14CE1D</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>33</ID>
+      <Description>"블렌드 모드 변수 ecx,[esp+30]"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>YAPCAR.exe+35C3E7</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>36</ID>
+      <Description>"bp eax,byte ptr[esp+30]"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>YAPCAR.exe+35C504</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>37</ID>
+      <Description>"bp byte ptr [esp+30],03"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>YAPCAR.exe+35C591</Address>
+    </CheatEntry>
   </CheatEntries>
   <UserdefinedSymbols/>
 </CheatTable>
