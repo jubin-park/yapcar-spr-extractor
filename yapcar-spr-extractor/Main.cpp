@@ -28,7 +28,7 @@ struct SpriteRect
 #pragma pack(push, 1)
 struct SpriteInfo
 {
-    uint64_t Padding;
+    uint64_t Unknown;
     uint16_t Width;
     uint16_t Height;
     uint16_t Index;
@@ -48,10 +48,14 @@ void GetFileNameWithoutExtension(const wchar_t* const pWszFilePath, wchar_t* pDs
 
 int wmain()
 {
-	//ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_btexit.SPR");
-	//ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\Status\\esc.SPR");
-	//ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_bg.SPR");
-	//ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_bg.SPR!");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\Status\\esc.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\SecretNpc\\SRTSHOPNPC.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\Rescue\\ENDING.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\Rescue\\MAIN.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_bg.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_btexit.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_btnotice.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_panel_create.SPR");
 	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_panel_notice.SPR");
 
 	return 0;
@@ -77,7 +81,7 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 
 	GetFileNameWithoutExtension(pWszFilePath, fileNameWithoutExtension);
 
-	wprintf(L"-- FileName: \"%s\" --\n", fileNameWithoutExtension);
+	wprintf(L"\n-- \"%s\" --\n", pWszFilePath);
 
 	do
 	{
@@ -100,11 +104,13 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 
 		pOffset += pSPRFileHeader->SpriteCount * sizeof(SpriteRect);
 
+		wprintf(L"MetaData = { %u, %u, SpriteCount: %hu, %hu }\n", pSPRFileHeader->Unknown1, pSPRFileHeader->Unknown2, pSPRFileHeader->SpriteCount, pSPRFileHeader->Unknown4);
+
 		for (spriteIndex = 0; spriteIndex < pSPRFileHeader->SpriteCount; ++spriteIndex)
 		{
 			pSpriteInfo = reinterpret_cast<SpriteInfo*>(pOffset);
 
-			wprintf(L"[%3d] width: %3hd, height: %3hd, padding: %llu\n", pSpriteInfo->Index, pSpriteInfo->Width, pSpriteInfo->Height, pSpriteInfo->Padding);
+			wprintf(L"[%3d] width: %3hd, height: %3hd, Unknown: %p\n", pSpriteInfo->Index, pSpriteInfo->Width, pSpriteInfo->Height, (void*)pSpriteInfo->Unknown);
 
 			pOffset += sizeof(SpriteInfo);
 		}
@@ -145,11 +151,6 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 			SaveBMP(bmpFileName, pSpriteRect[spriteIndex].Width, pSpriteRect[spriteIndex].Height, paBGR888);
 
 			delete[] paBGR888;
-		}
-
-		if (pOffset != paBuf + bufSize)
-		{
-			__debugbreak();
 		}
 
 	} while (0);
