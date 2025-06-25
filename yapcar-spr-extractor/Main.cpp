@@ -57,6 +57,10 @@ int wmain()
 	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_btnotice.SPR");
 	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_panel_create.SPR");
 	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_panel_notice.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\m01.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\m01n.SPR");
+	//ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\noticeview\\MAIN.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\Wedding\\cry.spr");
 
 	return 0;
 }
@@ -119,7 +123,7 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 		for (spriteIndex = 0; spriteIndex < pSPRFileHeader->SpriteCount; ++spriteIndex)
 		{
 			area = pSpriteRect[spriteIndex].Width * pSpriteRect[spriteIndex].Height;
-			wprintf(L"[%3d] width: %3hd, height: %3hd, area: %u\n", spriteIndex, pSpriteRect->Width, pSpriteRect->Height, area);
+			wprintf(L"[%3d] width: %3hu, height: %3hu, area: %u\n", spriteIndex, pSpriteRect->Width, pSpriteRect->Height, area);
 
 			pOffset += area * sizeof(uint16_t);
 
