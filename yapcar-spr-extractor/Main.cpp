@@ -61,6 +61,12 @@ int wmain()
 	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\m01n.SPR");
 	//ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\noticeview\\MAIN.SPR");
 	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\Wedding\\cry.spr");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\BridgeSys\\Port_Pierrot.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\BridgeSys\\Obj_Balloon_Normal.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\BridgeSys\\Obj_Balloon_Bomb.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\CITYMARK\\DARKCITY.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\CAR\\BD0\\01.SPR");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\CAR\\BD2\\02.SPR");
 
 	return 0;
 }
@@ -144,6 +150,27 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 					bgr888.Blue = (((rgb565 & 0x1F) * 527) + 23) >> 6;
 					bgr888.Green = ((((rgb565 >> 5) & 0x3F) * 259) + 33) >> 6;
 					bgr888.Red = ((((rgb565 >> 11) & 0x1F) * 527) + 23) >> 6;
+
+					/*
+
+					BGR888 blend;
+					blend.Red = 255;
+					blend.Green = 255;
+					blend.Blue = 255;
+
+					float r1 = bgr888.Red / 255.f;
+					float g1 = bgr888.Green / 255.f;
+					float b1 = bgr888.Blue / 255.f;
+
+					float r2 = blend.Red / 255.f;
+					float g2 = blend.Green / 255.f;
+					float b2 = blend.Blue / 255.f;
+
+					BGR888 result;
+					result.Red = max(r1, r2) / r2 * 255;
+					result.Green = max(g1, g2) / g2 * 255;
+					result.Blue = max(b1, b2) / b2 * 255;
+					*/
 
 					*pBGR888Iterator++ = bgr888;
 
