@@ -1,42 +1,9 @@
 #include <cstdio>
 #include <cstdint>
-#include <clocale>
 #include <shlwapi.h>
 #include <strsafe.h>
-#include <gdiplus.h>
 
 #pragma comment(lib, "Shlwapi.lib")
-#pragma comment(lib, "gdiplus.lib")
-
-/*
-struct SPR
-{
-    u32 header;
-    u32 unknown1; // can be zero, subtract 4 and >=
-    u32 unknown2;
-    u16 spriteCount;
-    u16 unknown4;
-    u8 unknown5[408];
-};
-
-struct SPRInfo
-{
-    u8 unknown[12];
-};
-
-struct Frame
-{
-    u16 width;
-    u16 height;
-    u16 index;
-};
-
-SPR sprTest @ 0x0;
-
-SPRInfo sprInfo @ 0x1a8;
-
-Frame frame @ 0x1b4;
-*/
 
 #pragma pack(push, 1)
 struct SPRFileHeader
