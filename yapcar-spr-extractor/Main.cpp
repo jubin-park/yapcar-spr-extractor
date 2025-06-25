@@ -42,22 +42,22 @@ struct BGR888
 	uint8_t Red;
 };
 
-void AnalyzeSPR(const wchar_t* const pWszFilePath);
+void ConvertSPRToBMP(const wchar_t* const pWszFilePath);
 void SaveBMP(wchar_t* pFileName, const LONG width, const LONG height, const BGR888* const paBGR);
 void GetFileNameWithoutExtension(const wchar_t* const pWszFilePath, wchar_t* pDstFileName);
 
 int wmain()
 {
-	//AnalyzeSPR(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_btexit.SPR");
-	//AnalyzeSPR(L"D:\\Yapcar\\Sprite\\Status\\esc.SPR");
-	//AnalyzeSPR(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_bg.SPR");
-	//AnalyzeSPR(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_bg.SPR!");
-	AnalyzeSPR(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_panel_notice.SPR");
+	//ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_btexit.SPR");
+	//ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\Status\\esc.SPR");
+	//ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_bg.SPR");
+	//ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_bg.SPR!");
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_panel_notice.SPR");
 
 	return 0;
 }
 
-void AnalyzeSPR(const wchar_t* const pWszFilePath)
+void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 {
 	wchar_t fileNameWithoutExtension[MAX_PATH];
 	wchar_t bmpFileName[MAX_PATH];
