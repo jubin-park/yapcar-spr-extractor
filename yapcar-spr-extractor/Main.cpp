@@ -21,10 +21,16 @@ struct SPRFileHeader
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-struct SpriteRect
+struct SpriteWidth
 {
-    uint16_t Width;
-    uint16_t Height;
+    uint16_t Value;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+struct SpriteHeight
+{
+	uint16_t Value;
 };
 #pragma pack(pop)
 
@@ -35,8 +41,8 @@ struct SpriteInfo
 	int16_t Unknown2;
 	int16_t Unknown3;
 	int16_t Unknown4;
-    uint16_t Width;
-    uint16_t Height;
+	int16_t Unknown5;
+	int16_t Unknown6;
     uint16_t SpriteIndex;
 };
 #pragma pack(pop)
@@ -81,7 +87,8 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 	uint8_t* paBuf = nullptr;
 	uint32_t readByteCount;
 	SPRFileHeader* pSPRFileHeader;
-	SpriteRect* pSpriteRect;
+	SpriteWidth* pSpriteWidth;
+	SpriteHeight* pSpriteHeight;
 	SpriteInfo* pSpriteInfo;
 	uint8_t* pOffset = 0;
 	uint16_t spriteIndex;
@@ -127,8 +134,11 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 		pSPRFileHeader = reinterpret_cast<SPRFileHeader*>(pOffset);
 		pOffset += sizeof(SPRFileHeader);
 
-		pSpriteRect = reinterpret_cast<SpriteRect*>(pOffset);
-		pOffset += pSPRFileHeader->SpriteCount * sizeof(SpriteRect);
+		pSpriteWidth = reinterpret_cast<SpriteWidth*>(pOffset);
+		pOffset += pSPRFileHeader->SpriteCount * sizeof(SpriteWidth);
+
+		pSpriteHeight = reinterpret_cast<SpriteHeight*>(pOffset);
+		pOffset += pSPRFileHeader->SpriteCount * sizeof(SpriteHeight);
 
 		pSpriteInfo = reinterpret_cast<SpriteInfo*>(pOffset);
 		pOffset += pSPRFileHeader->InfoCount * sizeof(SpriteInfo);
@@ -138,19 +148,20 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 		for (spriteIndex = 0; spriteIndex < pSPRFileHeader->SpriteCount; ++spriteIndex)
 		{
 			wprintf(L"SpriteRect [%3hu] width: %3hu, height: %3hu, area: %u\n",
-				spriteIndex, pSpriteRect[spriteIndex].Width, pSpriteRect[spriteIndex].Height, pSpriteRect[spriteIndex].Width * pSpriteRect[spriteIndex].Height);
+				spriteIndex, pSpriteWidth[spriteIndex].Value, pSpriteHeight[spriteIndex].Value, pSpriteWidth[spriteIndex].Value * pSpriteHeight[spriteIndex].Value);
 		}
 
 		for (infoIndex = 0; infoIndex < pSPRFileHeader->InfoCount; ++infoIndex)
 		{
-			wprintf(L"SpriteInfo [%3hu] index: %3hu, width: %3hu, height: %3hu, { %hd, %hd, %hd, %hd }\n",
-				infoIndex, pSpriteInfo[infoIndex].SpriteIndex, pSpriteInfo[infoIndex].Width, pSpriteInfo[infoIndex].Height, pSpriteInfo->Unknown1, pSpriteInfo->Unknown2, pSpriteInfo->Unknown3, pSpriteInfo->Unknown4);
+			wprintf(L"SpriteInfo [%3hu] index: %3hu, { %hd, %hd, %hd, %hd, %hd, %hd }\n",
+				infoIndex, pSpriteInfo[infoIndex].SpriteIndex,
+				pSpriteInfo[infoIndex].Unknown1, pSpriteInfo[infoIndex].Unknown2, pSpriteInfo->Unknown3, pSpriteInfo->Unknown4, pSpriteInfo->Unknown5, pSpriteInfo->Unknown6);
 		}
 
 		for (spriteIndex = 0; spriteIndex < pSPRFileHeader->SpriteCount; ++spriteIndex)
 		{
-			width = pSpriteRect[spriteIndex].Width;
-			height = pSpriteRect[spriteIndex].Height;
+			width = pSpriteWidth[spriteIndex].Value;
+			height = pSpriteHeight[spriteIndex].Value;
 			area = width * height;
 			stride = ((((width * 24) + 31) & ~31) >> 3);
 			biSizeImage = height * stride;
