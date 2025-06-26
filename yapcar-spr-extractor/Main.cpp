@@ -15,7 +15,7 @@ struct SPRFileHeader
     uint32_t Unknown1;
     uint32_t Unknown2;
     uint16_t SpriteCount;
-    uint16_t Unknown4;
+    uint16_t InfoCount;
     uint8_t Unknown5[408];
 };
 #pragma pack(pop)
@@ -34,7 +34,7 @@ struct SpriteInfo
     uint64_t Unknown;
     uint16_t Width;
     uint16_t Height;
-    uint16_t Index;
+    uint16_t SpriteIndex;
 };
 #pragma pack(pop)
 
@@ -56,8 +56,6 @@ int wmain()
 	_wsetlocale(LC_ALL, L"ko-KR");
 
 	wchar_t path[1024];
-
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\CAR\\MTD0\\01.spr");
 
 	while (fgetws(path, _countof(path), stdin) != nullptr)
 	{
@@ -129,16 +127,16 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 		pOffset += pSPRFileHeader->SpriteCount * sizeof(SpriteRect);
 
 		pSpriteInfo = reinterpret_cast<SpriteInfo*>(pOffset);
-		pOffset += pSPRFileHeader->SpriteCount * sizeof(SpriteInfo);
+		pOffset += pSPRFileHeader->InfoCount * sizeof(SpriteInfo);
 
-		wprintf(L"MetaData = { %u, %u, SpriteCount: %hu, %hu }\n", pSPRFileHeader->Unknown1, pSPRFileHeader->Unknown2, pSPRFileHeader->SpriteCount, pSPRFileHeader->Unknown4);
+		wprintf(L"MetaData = { %u, %u, SpriteCount: %hu, InfoCount: %hu }\n", pSPRFileHeader->Unknown1, pSPRFileHeader->Unknown2, pSPRFileHeader->SpriteCount, pSPRFileHeader->InfoCount);
 
 		for (spriteIndex = 0; spriteIndex < pSPRFileHeader->SpriteCount; ++spriteIndex)
 		{
 			wprintf(L"[%3hu] SpriteRect / width: %3hu, height: %3hu, area: %u\n"
 				"      SpriteInfo / width: %3hd, height: %3hd, Unknown: %p\n",
-			pSpriteInfo[spriteIndex].Index, pSpriteRect[spriteIndex].Width, pSpriteRect[spriteIndex].Height, pSpriteRect[spriteIndex].Width * pSpriteRect[spriteIndex].Height,
-			pSpriteInfo[spriteIndex].Width, pSpriteInfo[spriteIndex].Height, (void*)pSpriteInfo->Unknown);
+				spriteIndex, pSpriteRect[spriteIndex].Width, pSpriteRect[spriteIndex].Height, pSpriteRect[spriteIndex].Width * pSpriteRect[spriteIndex].Height,
+				pSpriteInfo[spriteIndex].Width, pSpriteInfo[spriteIndex].Height, (void*)pSpriteInfo->Unknown);
 		}
 
 		for (spriteIndex = 0; spriteIndex < pSPRFileHeader->SpriteCount; ++spriteIndex)
