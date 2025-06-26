@@ -31,7 +31,10 @@ struct SpriteRect
 #pragma pack(push, 1)
 struct SpriteInfo
 {
-    uint64_t Unknown;
+	int16_t Unknown1;
+	int16_t Unknown2;
+	int16_t Unknown3;
+	int16_t Unknown4;
     uint16_t Width;
     uint16_t Height;
     uint16_t SpriteIndex;
@@ -82,6 +85,7 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 	SpriteInfo* pSpriteInfo;
 	uint8_t* pOffset = 0;
 	uint16_t spriteIndex;
+	uint16_t infoIndex;
 	uint32_t area;
 	BGR888* paBGR888 = nullptr;
 	BGR888* pBGR888Iterator;
@@ -133,10 +137,14 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 
 		for (spriteIndex = 0; spriteIndex < pSPRFileHeader->SpriteCount; ++spriteIndex)
 		{
-			wprintf(L"[%3hu] SpriteRect / width: %3hu, height: %3hu, area: %u\n"
-				"      SpriteInfo / width: %3hd, height: %3hd, Unknown: %p\n",
-				spriteIndex, pSpriteRect[spriteIndex].Width, pSpriteRect[spriteIndex].Height, pSpriteRect[spriteIndex].Width * pSpriteRect[spriteIndex].Height,
-				pSpriteInfo[spriteIndex].Width, pSpriteInfo[spriteIndex].Height, (void*)pSpriteInfo->Unknown);
+			wprintf(L"SpriteRect [%3hu] width: %3hu, height: %3hu, area: %u\n",
+				spriteIndex, pSpriteRect[spriteIndex].Width, pSpriteRect[spriteIndex].Height, pSpriteRect[spriteIndex].Width * pSpriteRect[spriteIndex].Height);
+		}
+
+		for (infoIndex = 0; infoIndex < pSPRFileHeader->InfoCount; ++infoIndex)
+		{
+			wprintf(L"SpriteInfo [%3hu] index: %3hu, width: %3hu, height: %3hu, { %hd, %hd, %hd, %hd }\n",
+				infoIndex, pSpriteInfo[infoIndex].SpriteIndex, pSpriteInfo[infoIndex].Width, pSpriteInfo[infoIndex].Height, pSpriteInfo->Unknown1, pSpriteInfo->Unknown2, pSpriteInfo->Unknown3, pSpriteInfo->Unknown4);
 		}
 
 		for (spriteIndex = 0; spriteIndex < pSPRFileHeader->SpriteCount; ++spriteIndex)
@@ -177,6 +185,11 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 			SaveBMP(bmpFileName, width, height, paBGR888);
 
 			delete[] paBGR888;
+		}
+
+		if (pOffset != paBuf + readByteCount)
+		{
+			__debugbreak();
 		}
 
 	} while (0);
