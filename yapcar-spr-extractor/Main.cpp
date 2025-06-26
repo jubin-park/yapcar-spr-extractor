@@ -1,9 +1,12 @@
 #include <cstdio>
 #include <cstdint>
+#include <clocale>
 #include <shlwapi.h>
 #include <strsafe.h>
+#include <pathcch.h>
 
 #pragma comment(lib, "Shlwapi.lib")
+#pragma comment(lib, "Pathcch.lib")
 
 #pragma pack(push, 1)
 struct SPRFileHeader
@@ -42,37 +45,33 @@ struct BGR888
 	uint8_t Red;
 };
 
+typedef uint16_t RGB565;
+
 void ConvertSPRToBMP(const wchar_t* const pWszFilePath);
-void SaveBMP(wchar_t* pFileName, const LONG width, const LONG height, const BGR888* const paBGR);
+void SaveBMP(const wchar_t* const pFileName, const LONG width, const LONG height, const BGR888* const paBGR888);
 void GetFileNameWithoutExtension(const wchar_t* const pWszFilePath, wchar_t* pDstFileName);
 
 int wmain()
 {
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\Status\\esc.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\SecretNpc\\SRTSHOPNPC.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\Rescue\\ENDING.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\Rescue\\MAIN.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_bg.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_btexit.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_btnotice.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_panel_create.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\login_panel_notice.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\m01.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\LOGIN_9STAR\\m01n.SPR");
-	//ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\noticeview\\MAIN.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\Wedding\\cry.spr");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\BridgeSys\\Port_Pierrot.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\BridgeSys\\Obj_Balloon_Normal.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\BridgeSys\\Obj_Balloon_Bomb.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\CITYMARK\\DARKCITY.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\CAR\\BD0\\01.SPR");
-	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\CAR\\BD2\\02.SPR");
+	_wsetlocale(LC_ALL, L"ko-KR");
+
+	wchar_t path[1024];
+
+	ConvertSPRToBMP(L"D:\\Yapcar\\Sprite\\CAR\\MTD0\\01.spr");
+
+	while (fgetws(path, _countof(path), stdin) != nullptr)
+	{
+		size_t len = wcsnlen_s(path, _countof(path));
+		path[len - 1] = L'\0';
+		ConvertSPRToBMP(path);
+	}
 
 	return 0;
 }
 
 void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 {
+	wchar_t directoryPath[MAX_PATH];
 	wchar_t fileNameWithoutExtension[MAX_PATH];
 	wchar_t bmpFileName[MAX_PATH];
 	FILE* pFile = nullptr;
@@ -88,6 +87,16 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 	uint32_t area;
 	BGR888* paBGR888 = nullptr;
 	BGR888* pBGR888Iterator;
+	RGB565* pColorOffset;
+	uint16_t x;
+	uint16_t y;
+	RGB565 rgb565;
+	BGR888 bgr888;
+	uint16_t width;
+	uint16_t height;
+	int stride;
+	int biSizeImage;
+	int padding;
 
 	GetFileNameWithoutExtension(pWszFilePath, fileNameWithoutExtension);
 
@@ -98,6 +107,7 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 		err = _wfopen_s(&pFile, pWszFilePath, L"rb");
 		if (err != 0 || pFile == nullptr)
 		{
+			wprintf(L"open rb error");
 			break;
 		}
 
@@ -107,79 +117,66 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 
 		paBuf = new uint8_t[bufSize];
 		readByteCount = static_cast<uint32_t>(fread_s(paBuf, bufSize, sizeof(uint8_t), bufSize, pFile));
+
+		fclose(pFile);
+
 		pOffset = paBuf;
 
 		pSPRFileHeader = reinterpret_cast<SPRFileHeader*>(pOffset);
 		pOffset += sizeof(SPRFileHeader);
 
+		pSpriteRect = reinterpret_cast<SpriteRect*>(pOffset);
 		pOffset += pSPRFileHeader->SpriteCount * sizeof(SpriteRect);
+
+		pSpriteInfo = reinterpret_cast<SpriteInfo*>(pOffset);
+		pOffset += pSPRFileHeader->SpriteCount * sizeof(SpriteInfo);
 
 		wprintf(L"MetaData = { %u, %u, SpriteCount: %hu, %hu }\n", pSPRFileHeader->Unknown1, pSPRFileHeader->Unknown2, pSPRFileHeader->SpriteCount, pSPRFileHeader->Unknown4);
 
 		for (spriteIndex = 0; spriteIndex < pSPRFileHeader->SpriteCount; ++spriteIndex)
 		{
-			pSpriteInfo = reinterpret_cast<SpriteInfo*>(pOffset);
-
-			wprintf(L"[%3d] width: %3hd, height: %3hd, Unknown: %p\n", pSpriteInfo->Index, pSpriteInfo->Width, pSpriteInfo->Height, (void*)pSpriteInfo->Unknown);
-
-			pOffset += sizeof(SpriteInfo);
+			wprintf(L"[%3hu] SpriteRect / width: %3hu, height: %3hu, area: %u\n"
+				"      SpriteInfo / width: %3hd, height: %3hd, Unknown: %p\n",
+			pSpriteInfo[spriteIndex].Index, pSpriteRect[spriteIndex].Width, pSpriteRect[spriteIndex].Height, pSpriteRect[spriteIndex].Width * pSpriteRect[spriteIndex].Height,
+			pSpriteInfo[spriteIndex].Width, pSpriteInfo[spriteIndex].Height, (void*)pSpriteInfo->Unknown);
 		}
 
-		pSpriteRect = reinterpret_cast<SpriteRect*>(paBuf + sizeof(SPRFileHeader));
 		for (spriteIndex = 0; spriteIndex < pSPRFileHeader->SpriteCount; ++spriteIndex)
 		{
-			area = pSpriteRect[spriteIndex].Width * pSpriteRect[spriteIndex].Height;
-			wprintf(L"[%3d] width: %3hu, height: %3hu, area: %u\n", spriteIndex, pSpriteRect->Width, pSpriteRect->Height, area);
+			width = pSpriteRect[spriteIndex].Width;
+			height = pSpriteRect[spriteIndex].Height;
+			area = width * height;
+			stride = ((((width * 24) + 31) & ~31) >> 3);
+			biSizeImage = height * stride;
+			padding = stride - width * 3;
 
-			pOffset += area * sizeof(uint16_t);
+			pOffset += area * sizeof(RGB565);
 
-			paBGR888 = new BGR888[area];
+			paBGR888 = new BGR888[biSizeImage];
 			pBGR888Iterator = paBGR888;
 
-			uint8_t* pColorOffset = pOffset;
+			pColorOffset = reinterpret_cast<RGB565*>(pOffset);
 
-			for (uint16_t y = 0; y < pSpriteRect->Height; ++y)
+			for (y = 0; y < height; ++y)
 			{
-				pColorOffset -= pSpriteRect->Width * sizeof(uint16_t);
-				uint8_t* pReversedRow = pColorOffset;
-				for (uint16_t x = 0; x < pSpriteRect->Width; ++x)
+				pColorOffset -= width;
+				for (x = 0; x < width; ++x)
 				{
-					uint16_t rgb565 = *reinterpret_cast<uint16_t*>(pReversedRow);
+					rgb565 = *reinterpret_cast<RGB565*>(&pColorOffset[x]);
 
-					BGR888 bgr888;
 					bgr888.Blue = (((rgb565 & 0x1F) * 527) + 23) >> 6;
 					bgr888.Green = ((((rgb565 >> 5) & 0x3F) * 259) + 33) >> 6;
 					bgr888.Red = ((((rgb565 >> 11) & 0x1F) * 527) + 23) >> 6;
 
-					/*
-
-					BGR888 blend;
-					blend.Red = 255;
-					blend.Green = 255;
-					blend.Blue = 255;
-
-					float r1 = bgr888.Red / 255.f;
-					float g1 = bgr888.Green / 255.f;
-					float b1 = bgr888.Blue / 255.f;
-
-					float r2 = blend.Red / 255.f;
-					float g2 = blend.Green / 255.f;
-					float b2 = blend.Blue / 255.f;
-
-					BGR888 result;
-					result.Red = max(r1, r2) / r2 * 255;
-					result.Green = max(g1, g2) / g2 * 255;
-					result.Blue = max(b1, b2) / b2 * 255;
-					*/
-
 					*pBGR888Iterator++ = bgr888;
-
-					pReversedRow += sizeof(uint16_t);
 				}
+				pBGR888Iterator = (BGR888*)((uint8_t*)pBGR888Iterator + padding);
 			}
 
-			StringCbPrintfW(bmpFileName, sizeof(bmpFileName), L"../samples/%s_%03hu.bmp", fileNameWithoutExtension, spriteIndex);
-			SaveBMP(bmpFileName, pSpriteRect[spriteIndex].Width, pSpriteRect[spriteIndex].Height, paBGR888);
+			StringCchCopyW(directoryPath, _countof(directoryPath), pWszFilePath);
+			PathCchRemoveFileSpec(directoryPath, _countof(directoryPath));
+			StringCbPrintfW(bmpFileName, sizeof(bmpFileName), L"%s\\%s_%03hu.bmp", directoryPath, fileNameWithoutExtension, spriteIndex);
+			SaveBMP(bmpFileName, width, height, paBGR888);
 
 			delete[] paBGR888;
 		}
@@ -189,40 +186,44 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 	delete[] paBuf;
 }
 
-void SaveBMP(wchar_t* pFileName, const LONG width, const LONG height, const BGR888* const paBGR)
+void SaveBMP(const wchar_t* const pFileName, const LONG width, const LONG height, const BGR888* const paBGR888)
 {
-	FILE* pOutput = nullptr;
-	_wfopen_s(&pOutput, pFileName, L"wb");
-	if (pOutput == nullptr)
+	FILE* pBitmapFile = nullptr;
+	BITMAPFILEHEADER bmFileHeader;
+	BITMAPINFOHEADER bmInfoHeader;
+
+	_wfopen_s(&pBitmapFile, pFileName, L"wb");
+	if (pBitmapFile == nullptr)
 	{
 		return;
 	}
 
-	BITMAPFILEHEADER fileHeader;
-	fileHeader.bfType = 0x4D42;
-	fileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
-	fileHeader.bfSize = fileHeader.bfOffBits + (width * height * sizeof(BGR888));
-	fileHeader.bfReserved1 = 0;
-	fileHeader.bfReserved2 = 0;
+	LONG stride = ((((width * 24) + 31) & ~31) >> 3);
+	LONG biSizeImage = height * stride;
 
-	BITMAPINFOHEADER infoHeader;
-	infoHeader.biSize = sizeof(BITMAPINFOHEADER);
-	infoHeader.biWidth = width;
-	infoHeader.biHeight = height;
-	infoHeader.biPlanes = 1;
-	infoHeader.biBitCount = 8 * sizeof(BGR888);
-	infoHeader.biCompression = 0;
-	infoHeader.biSizeImage = 0;
-	infoHeader.biXPelsPerMeter = 0;
-	infoHeader.biYPelsPerMeter = 0;
-	infoHeader.biClrUsed = 0;
-	infoHeader.biClrImportant = 0;
+	bmFileHeader.bfType = 0x4D42;
+	bmFileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+	bmFileHeader.bfSize = bmFileHeader.bfOffBits + (biSizeImage * sizeof(BGR888));
+	bmFileHeader.bfReserved1 = 0;
+	bmFileHeader.bfReserved2 = 0;
 
-	fwrite(&fileHeader, sizeof(fileHeader), 1, pOutput);
-	fwrite(&infoHeader, sizeof(infoHeader), 1, pOutput);
-	fwrite(paBGR, sizeof(BGR888), width * height, pOutput);
+	bmInfoHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bmInfoHeader.biWidth = width;
+	bmInfoHeader.biHeight = height;
+	bmInfoHeader.biPlanes = 1;
+	bmInfoHeader.biBitCount = 8 * sizeof(BGR888);
+	bmInfoHeader.biCompression = 0;
+	bmInfoHeader.biSizeImage = 0;
+	bmInfoHeader.biXPelsPerMeter = 0;
+	bmInfoHeader.biYPelsPerMeter = 0;
+	bmInfoHeader.biClrUsed = 0;
+	bmInfoHeader.biClrImportant = 0;
 
-	fclose(pOutput);
+	fwrite(&bmFileHeader, sizeof(bmFileHeader), 1, pBitmapFile);
+	fwrite(&bmInfoHeader, sizeof(bmInfoHeader), 1, pBitmapFile);
+	fwrite(paBGR888, 1, biSizeImage, pBitmapFile);
+
+	fclose(pBitmapFile);
 }
 
 void GetFileNameWithoutExtension(const wchar_t* pWszFilePath, wchar_t* pDstFileName)
