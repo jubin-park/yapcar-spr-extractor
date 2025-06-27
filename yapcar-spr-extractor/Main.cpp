@@ -59,6 +59,8 @@ typedef uint16_t RGB565;
 void ConvertSPRToBMP(const wchar_t* const pWszFilePath);
 void SaveBMP(const wchar_t* const pFileName, const LONG width, const LONG height, const BGR888* const paBGR888);
 void GetFileNameWithoutExtension(const wchar_t* const pWszFilePath, wchar_t* pDstFileName);
+BGR888 ProcessColor(const RGB565 rgb565);
+float lerp(float p1, float p2, float d1);
 
 int wmain()
 {
@@ -181,9 +183,16 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 				{
 					rgb565 = *reinterpret_cast<RGB565*>(&pColorOffset[x]);
 
-					bgr888.Blue = (((rgb565 & 0x1F) * 527) + 23) >> 6;
-					bgr888.Green = ((((rgb565 >> 5) & 0x3F) * 259) + 33) >> 6;
-					bgr888.Red = ((((rgb565 >> 11) & 0x1F) * 527) + 23) >> 6;
+					if (pSPRFileHeader->BlendType == 0)
+					{
+						bgr888.Blue = (((rgb565 & 0x1F) * 527) + 23) >> 6;
+						bgr888.Green = ((((rgb565 >> 5) & 0x3F) * 259) + 33) >> 6;
+						bgr888.Red = ((((rgb565 >> 11) & 0x1F) * 527) + 23) >> 6;
+					}
+					else
+					{
+						bgr888 = ProcessColor(rgb565);
+					}
 
 					*pBGR888Iterator++ = bgr888;
 				}
@@ -206,6 +215,61 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 	} while (0);
 
 	delete[] paBuf;
+}
+
+BGR888 ProcessColor(const RGB565 rgb565)
+{
+	float error = 0.32f;
+
+	BGR888 bgr888;
+
+	bgr888.Blue = (((rgb565 & 0x1F) * 527) + 23) >> 6;
+	bgr888.Green = ((((rgb565 >> 5) & 0x3F) * 259) + 33) >> 6;
+	bgr888.Red = ((((rgb565 >> 11) & 0x1F) * 527) + 23) >> 6;
+
+	float r1 = bgr888.Red / 255.f;
+	float g1 = bgr888.Green / 255.f;
+	float b1 = bgr888.Blue / 255.f;
+
+	float r2 = 1.f;
+	float g2 = 1.f;
+	float b2 = 1.f;
+
+	do
+	{
+		if (rgb565 == 0x0fff)
+		{
+			r1 = 1.f;
+			g1 = 1.f;
+			b1 = 1.f;
+			break;
+		}
+
+		if (r1 == 0 && g1 == 0 && b1 == 0)
+		{
+			r1 = 1.f;
+			g1 = 1.f;
+			b1 = 1.f;
+			break;
+		}
+
+		if (g1 < error && b1 < error)
+		{
+			r1 = (1 - r1) * r2;
+		}
+
+		if (g1 > 0 && b1 == 0)
+		{
+			g1 = (1.f - g1) * g2;
+		}
+
+	} while (0);
+
+	bgr888.Red = static_cast<uint8_t>(r1 * 255);
+	bgr888.Green = static_cast<uint8_t>(g1 * 255);
+	bgr888.Blue = static_cast<uint8_t>(b1 * 255);
+
+	return bgr888;
 }
 
 void SaveBMP(const wchar_t* const pFileName, const LONG width, const LONG height, const BGR888* const paBGR888)
@@ -263,4 +327,9 @@ void GetFileNameWithoutExtension(const wchar_t* pWszFilePath, wchar_t* pDstFileN
 		*pDstFileName++ = *pSrc++;
 	}
 	*pDstFileName = L'\0';
+}
+
+float lerp(float p1, float p2, float d1)
+{
+	return (1 - d1) * p1 + d1 * p2;
 }
