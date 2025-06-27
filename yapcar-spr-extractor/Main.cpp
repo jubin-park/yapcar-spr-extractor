@@ -12,7 +12,7 @@
 struct SPRFileHeader
 {
     uint32_t Code;
-    uint32_t Unknown1;
+    uint32_t BlendType;
     uint32_t Unknown2;
     uint16_t SpriteCount;
     uint16_t InfoCount;
@@ -143,7 +143,7 @@ void ConvertSPRToBMP(const wchar_t* const pWszFilePath)
 		pSpriteInfo = reinterpret_cast<SpriteInfo*>(pOffset);
 		pOffset += pSPRFileHeader->InfoCount * sizeof(SpriteInfo);
 
-		wprintf(L"MetaData = { %u, %u, SpriteCount: %hu, InfoCount: %hu }\n", pSPRFileHeader->Unknown1, pSPRFileHeader->Unknown2, pSPRFileHeader->SpriteCount, pSPRFileHeader->InfoCount);
+		wprintf(L"MetaData = { BlendType: %u, %u, SpriteCount: %hu, InfoCount: %hu }\n", pSPRFileHeader->BlendType, pSPRFileHeader->Unknown2, pSPRFileHeader->SpriteCount, pSPRFileHeader->InfoCount);
 
 		for (spriteIndex = 0; spriteIndex < pSPRFileHeader->SpriteCount; ++spriteIndex)
 		{
