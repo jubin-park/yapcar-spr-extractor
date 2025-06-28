@@ -21,31 +21,31 @@
 
 ## Sprite Samples
 
-![images\login.bmp](images\login.bmp)
+![images/login.bmp](images/login.bmp)
 
-![images\bg.bmp](images\bg.bmp)
+![images/bg.bmp](images/bg.bmp)
 
-![images\LOGIN1.bmp](images\LOGIN1.bmp)
+![images/LOGIN1.bmp](images/LOGIN1.bmp)
 
-![images\CSEL.bmp](images\CSEL.bmp)
+![images/CSEL.bmp](images/CSEL.bmp)
 
-![images\login_bg.bmp](images\login_bg.bmp)
+![images/login_bg.bmp](images/login_bg.bmp)
 
-![images\ND.gif](images\ND.gif)
-![images\BD.gif](images\BD.gif)
-![images\GD.gif](images\GD.gif)
+![images/ND.gif](images/ND.gif)
+![images/BD.gif](images/BD.gif)
+![images/GD.gif](images/GD.gif)
 
-![images\TD.gif](images\TD.gif)
-![images\MBD.gif](images\MBD.gif)
-![images\MTD.gif](images\MTD.gif)
+![images/TD.gif](images/TD.gif)
+![images/MBD.gif](images/MBD.gif)
+![images/MTD.gif](images/MTD.gif)
 
-![images\Ad.gif](images\Ad.gif)
-![images\Rd.gif](images\Rd.gif)
+![images/Ad.gif](images/Ad.gif)
+![images/Rd.gif](images/Rd.gif)
 
-![images\CA.gif](images\CA.gif)
-![images\BA.gif](images\BA.gif)
-![images\RS.gif](images\RS.gif)
-![images\ME.gif](images\ME.gif)
+![images/CA.gif](images/CA.gif)
+![images/BA.gif](images/BA.gif)
+![images/RS.gif](images/RS.gif)
+![images/ME.gif](images/ME.gif)
 
-![images\ORANGE.gif](images\ORANGE.gif)
-![images\BLUE.gif](images\BLUE.gif)
+![images/ORANGE.gif](images/ORANGE.gif)
+![images/BLUE.gif](images/BLUE.gif)
