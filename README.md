@@ -47,5 +47,5 @@
 ![images/RS.gif](images/RS.gif)
 ![images/ME.gif](images/ME.gif)
 
-![images/ORANGE.gif](images/ORANGE.gif)
-![images/BLUE.gif](images/BLUE.gif)
+![images/Orange.gif](images/Orange.gif)
+![images/Blue.gif](images/Blue.gif)
